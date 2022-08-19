@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="quiz.controllers.QuizController">
+   <children>
+      <VBox fx:id="vbox" layoutX="49.0" layoutY="132.0" prefHeight="149.0" prefWidth="280.0" spacing="20.0" />
+      <Label fx:id="question" alignment="TOP_LEFT" layoutX="49.0" layoutY="59.0" prefHeight="61.0" prefWidth="402.0" wrapText="true" />
+      <Button fx:id="submitButton" layoutX="246.0" layoutY="282.0" mnemonicParsing="false" prefHeight="55.0" prefWidth="108.0" style="-fx-background-color: #5F9EA0;" text="Confirm" />
+      <Button fx:id="backButton" layoutX="49.0" layoutY="14.0" mnemonicParsing="false" text="&lt; Back" />
+   </children>
+</AnchorPane>
