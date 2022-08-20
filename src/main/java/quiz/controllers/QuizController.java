@@ -1,5 +1,6 @@
 package quiz.controllers;
 
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
@@ -10,7 +11,6 @@ import javafx.scene.layout.VBox;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import quiz.alerts.AlertBoxes;
 import quiz.configurations.Router;
 import quiz.entities.AnswersEntity;
 import quiz.entities.QuestionsEntity;
@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 @Component
 @FxmlView("/fxml/quiz-controller.fxml")
@@ -66,8 +66,8 @@ public class QuizController implements Initializable {
         final Integer questionNumber = holder.getQuestionNumber() != null ? holder.getQuestionNumber() : 1;
         final List<RadioButton> radioButtonList = new ArrayList<>();
         final QuestionsEntity questionsEntity =
-                questionsRepository.findByQuestionGroup(String.valueOf(questionNumber))
-                        .orElseThrow(() -> new CouldNotFindQuestionEntityException("Oops"));
+                questionsRepository.findByQuestionGroup(String.valueOf(questionNumber));
+
         question.setText(questionsEntity.getQuestion());
         for (final AnswersEntity answersEntity : questionsEntity.getAnswersEntityList()) {
             radioButtonList.add(new RadioButton(String.valueOf(answersEntity.getAnswer())));
@@ -75,29 +75,34 @@ public class QuizController implements Initializable {
         final ToggleGroup toggleGroup = new ToggleGroup();
         radioButtonList.forEach(radioButton -> radioButton.setToggleGroup(toggleGroup));
         vbox.getChildren().addAll(radioButtonList);
+        final List<QuestionsEntity> questionsEntities = questionsRepository.findAll();
         submitButton.setOnAction(event -> {
-                if (validateInputs(toggleGroup)) {
-                    final String answer = ((RadioButton) toggleGroup.getSelectedToggle()).getText();
-                    final Map<Integer, String> map = holder.getAnswersMap();
-                    map.put(questionNumber, answer);
-                    holder.setAnswersMap(map);
-                }
+            if (validateInputs(toggleGroup)) {
+                final String answer = ((RadioButton) toggleGroup.getSelectedToggle()).getText();
+                final Map<Integer, String> map = holder.getAnswersMap();
+                map.put(questionNumber, answer);
+                holder.setAnswersMap(map);
+            }
+            if (questionNumber + 1 <= questionsEntities.size()) {
                 holder.setQuestionNumber(questionNumber + 1);
                 router.navigate(QuizController.class, event);
+            } else {
+                router.navigate(AnswersController.class, event);
+            }
         });
         backButton.setOnAction(event -> {
             holder.setQuestionNumber(questionNumber - 1);
             router.navigate(QuizController.class, event);
         });
-        displayBackButton(questionNumber, questionsEntity);
+        displayBackButton(questionNumber, questionsEntities);
     }
 
     private boolean validateInputs(final ToggleGroup toggleGroup) {
         return toggleGroup.selectedToggleProperty().isNotNull().getValue();
     }
 
-    private void displayBackButton(final Integer questionNumber, final QuestionsEntity questionsEntity) {
-        if (questionNumber == 1 || questionNumber > questionsEntity.getAnswersEntityList().size()) {
+    private void displayBackButton(final Integer questionNumber, final List<QuestionsEntity> questionsEntities) {
+        if (questionNumber == 1 || questionNumber > questionsEntities.size()) {
             backButton.setVisible(false);
         }
     }

@@ -9,6 +9,6 @@ import java.util.Optional;
 @Repository
 public interface QuestionsRepository extends JpaRepository<QuestionsEntity, Long> {
 
-    Optional<QuestionsEntity> findByQuestionGroup(final String questionGroup);
+    QuestionsEntity findByQuestionGroup(final String questionGroup);
 
 }
