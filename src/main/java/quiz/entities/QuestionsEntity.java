@@ -34,7 +34,7 @@ public class QuestionsEntity implements Serializable {
     @Column(name = "correct_answer", nullable = false)
     private String correctAnswer;
 
-    @Column(name = "entered_answer")
+    @Column(name = "entered_answer", nullable = false)
     private String enteredAnswer;
 
     @OneToMany(

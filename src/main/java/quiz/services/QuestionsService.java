@@ -1,7 +1,6 @@
 package quiz.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.convert.ConversionService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import quiz.entities.QuestionsEntity;
@@ -10,7 +9,6 @@ import quiz.exceptions.CouldNotUpdateQuestionEntityException;
 import quiz.repositories.QuestionsRepository;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class QuestionsService {
@@ -39,7 +37,7 @@ public class QuestionsService {
                 this.questionsRepository.findAll();
         questionsEntities
                 .forEach(questionsEntity ->
-                        questionsEntity.setEnteredAnswer(null));
+                        questionsEntity.setEnteredAnswer(""));
     }
 
     @Transactional

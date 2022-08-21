@@ -71,10 +71,8 @@ public class QuizController implements Initializable {
         }
         final ToggleGroup toggleGroup = new ToggleGroup();
         radioButtonList.forEach(radioButton -> {
-            if (questionsEntity.getEnteredAnswer() != null) {
-                if (questionsEntity.getEnteredAnswer().equals(radioButton.getText())) {
-                    radioButton.setSelected(true);
-                }
+            if (questionsEntity.getEnteredAnswer().equals(radioButton.getText())) {
+                radioButton.setSelected(true);
             }
             radioButton.setToggleGroup(toggleGroup);
         });
