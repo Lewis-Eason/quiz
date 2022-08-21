@@ -70,7 +70,14 @@ public class QuizController implements Initializable {
             radioButtonList.add(new RadioButton(String.valueOf(answersEntity.getAnswer())));
         }
         final ToggleGroup toggleGroup = new ToggleGroup();
-        radioButtonList.forEach(radioButton -> radioButton.setToggleGroup(toggleGroup));
+        radioButtonList.forEach(radioButton -> {
+            if (questionsEntity.getEnteredAnswer() != null) {
+                if (questionsEntity.getEnteredAnswer().equals(radioButton.getText())) {
+                    radioButton.setSelected(true);
+                }
+            }
+            radioButton.setToggleGroup(toggleGroup);
+        });
         vbox.getChildren().addAll(radioButtonList);
         final List<QuestionsEntity> questionsEntities = questionsService.getAllQuestions();
         setSubmitButtonAction(questionsEntities, toggleGroup, questionNumber);

@@ -8,7 +8,6 @@ import javafx.stage.Stage;
 import net.rgielen.fxweaver.core.FxWeaver;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ConfigurableApplicationContext;
-import quiz.controllers.AnswersController;
 import quiz.controllers.QuizController;
 
 public class FxApplication extends Application {

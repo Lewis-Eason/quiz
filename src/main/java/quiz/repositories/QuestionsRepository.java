@@ -11,4 +11,6 @@ public interface QuestionsRepository extends JpaRepository<QuestionsEntity, Long
 
     Optional<QuestionsEntity> findByQuestionGroup(final String questionGroup);
 
+    QuestionsEntity findEnteredAnswerByQuestionGroup(final String questionGroup);
+
 }
