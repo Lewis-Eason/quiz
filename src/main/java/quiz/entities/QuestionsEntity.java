@@ -1,7 +1,6 @@
 package quiz.entities;
 
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -17,7 +16,6 @@ import java.util.List;
 import java.util.Objects;
 
 @NoArgsConstructor
-@ToString
 @Table(name = "questions")
 @Entity
 public class QuestionsEntity implements Serializable {

@@ -1,14 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="quiz.controllers.AnswersController"
-            prefHeight="400.0" prefWidth="600.0">
-
+<AnchorPane prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="quiz.controllers.AnswersController">
+   <children>
+      <TableView fx:id="answersTable" layoutX="50.0" layoutY="159.0" prefHeight="276.0" prefWidth="700.0">
+        <columns>
+          <TableColumn fx:id="questionCol" editable="false" prefWidth="400.0" text="Question" />
+          <TableColumn fx:id="answerCol" editable="false" prefWidth="100.0" text="Your  answer" />
+            <TableColumn fx:id="correctAnswerCol" editable="false" prefWidth="100.0" text="Correct answer" />
+            <TableColumn fx:id="evaluateCol" editable="false" prefWidth="100.0" text="Correct?" />
+        </columns>
+      </TableView>
+      <Label alignment="CENTER" prefHeight="75.0" prefWidth="800.0" style="-fx-background-color: #5F9EA0;" text="Answers" textAlignment="CENTER">
+         <font>
+            <Font name="System Bold" size="24.0" />
+         </font></Label>
+      <Label fx:id="scoreLabel" alignment="CENTER" contentDisplay="CENTER" layoutX="50.0" layoutY="105.0" prefHeight="30.0" prefWidth="700.0">
+         <font>
+            <Font name="System Bold" size="14.0" />
+         </font></Label>
+      <Button layoutX="343.0" layoutY="480.0" mnemonicParsing="false" onAction="#startAgain" prefHeight="61.0" prefWidth="113.0" style="-fx-background-color: #5F9EA0; -fx-border-width: 1; -fx-border-color: black;" text="Try again" />
+   </children>
 </AnchorPane>

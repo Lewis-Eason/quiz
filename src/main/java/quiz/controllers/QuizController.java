@@ -1,6 +1,5 @@
 package quiz.controllers;
 
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
@@ -15,15 +14,14 @@ import quiz.configurations.Router;
 import quiz.entities.AnswersEntity;
 import quiz.entities.QuestionsEntity;
 import quiz.exceptions.CouldNotFindQuestionEntityException;
+import quiz.exceptions.CouldNotUpdateQuestionEntityException;
 import quiz.models.UserHolder;
-import quiz.repositories.QuestionsRepository;
+import quiz.services.QuestionsService;
 
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.ResourceBundle;
-import java.util.Optional;
 
 @Component
 @FxmlView("/fxml/quiz-controller.fxml")
@@ -38,36 +36,35 @@ public class QuizController implements Initializable {
     @FXML
     private Button submitButton, backButton;
 
-    private final QuestionsRepository questionsRepository;
-
     private final UserHolder holder;
 
     private final Router router;
 
+    private final QuestionsService questionsService;
+
     @Autowired
-    public QuizController(final QuestionsRepository questionsRepository,
-                          final UserHolder holder,
-                          final Router router) {
-        this.questionsRepository = questionsRepository;
+    public QuizController(final UserHolder holder,
+                          final Router router,
+                          final QuestionsService questionsService) {
         this.holder = holder;
         this.router = router;
+        this.questionsService = questionsService;
     }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         try {
             setUpData();
-        } catch (final CouldNotFindQuestionEntityException e) {
+        } catch (final Throwable e) {
             e.printStackTrace();
         }
     }
 
-    private void setUpData() throws CouldNotFindQuestionEntityException {
+    private void setUpData() throws CouldNotFindQuestionEntityException, CouldNotUpdateQuestionEntityException {
         final Integer questionNumber = holder.getQuestionNumber() != null ? holder.getQuestionNumber() : 1;
         final List<RadioButton> radioButtonList = new ArrayList<>();
         final QuestionsEntity questionsEntity =
-                questionsRepository.findByQuestionGroup(String.valueOf(questionNumber));
-
+                questionsService.retrieveQuestionsByQuestionGroup(String.valueOf(questionNumber));
         question.setText(questionsEntity.getQuestion());
         for (final AnswersEntity answersEntity : questionsEntity.getAnswersEntityList()) {
             radioButtonList.add(new RadioButton(String.valueOf(answersEntity.getAnswer())));
@@ -75,25 +72,9 @@ public class QuizController implements Initializable {
         final ToggleGroup toggleGroup = new ToggleGroup();
         radioButtonList.forEach(radioButton -> radioButton.setToggleGroup(toggleGroup));
         vbox.getChildren().addAll(radioButtonList);
-        final List<QuestionsEntity> questionsEntities = questionsRepository.findAll();
-        submitButton.setOnAction(event -> {
-            if (validateInputs(toggleGroup)) {
-                final String answer = ((RadioButton) toggleGroup.getSelectedToggle()).getText();
-                final Map<Integer, String> map = holder.getAnswersMap();
-                map.put(questionNumber, answer);
-                holder.setAnswersMap(map);
-            }
-            if (questionNumber + 1 <= questionsEntities.size()) {
-                holder.setQuestionNumber(questionNumber + 1);
-                router.navigate(QuizController.class, event);
-            } else {
-                router.navigate(AnswersController.class, event);
-            }
-        });
-        backButton.setOnAction(event -> {
-            holder.setQuestionNumber(questionNumber - 1);
-            router.navigate(QuizController.class, event);
-        });
+        final List<QuestionsEntity> questionsEntities = questionsService.getAllQuestions();
+        setSubmitButtonAction(questionsEntities, toggleGroup, questionNumber);
+        setBackButtonAction(questionNumber);
         displayBackButton(questionNumber, questionsEntities);
     }
 
@@ -105,5 +86,33 @@ public class QuizController implements Initializable {
         if (questionNumber == 1 || questionNumber > questionsEntities.size()) {
             backButton.setVisible(false);
         }
+    }
+
+    private void setSubmitButtonAction(final List<QuestionsEntity> questionsEntities,
+                                       final ToggleGroup toggleGroup,
+                                       final Integer questionNumber) {
+        submitButton.setOnAction(event -> {
+            if (validateInputs(toggleGroup)) {
+                final String answer = ((RadioButton) toggleGroup.getSelectedToggle()).getText();
+                try {
+                    questionsService.updateAnsweredQuestion(answer, questionNumber.toString());
+                } catch (CouldNotUpdateQuestionEntityException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (questionNumber + 1 <= questionsEntities.size()) {
+                holder.setQuestionNumber(questionNumber + 1);
+                router.navigate(QuizController.class, event);
+            } else {
+                router.navigate(AnswersController.class, event);
+            }
+        });
+    }
+
+    private void setBackButtonAction(final Integer questionNumber) {
+        backButton.setOnAction(event -> {
+            holder.setQuestionNumber(questionNumber - 1);
+            router.navigate(QuizController.class, event);
+        });
     }
 }
