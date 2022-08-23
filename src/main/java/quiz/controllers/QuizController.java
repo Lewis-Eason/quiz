@@ -1,12 +1,16 @@
 package quiz.controllers;
 
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.ToggleGroup;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
+import javafx.util.Duration;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -22,19 +26,23 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Component
 @FxmlView("/fxml/quiz-controller.fxml")
 public class QuizController implements Initializable {
 
     @FXML
-    private Label question;
+    private Label question, timerLabel;
 
     @FXML
     private VBox vbox;
 
     @FXML
     private Button submitButton, backButton;
+
+    @FXML
+    private AnchorPane anchorPane;
 
     private final UserHolder holder;
 
@@ -53,6 +61,7 @@ public class QuizController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        countdownTimer();
         try {
             setUpData();
         } catch (final Throwable e) {
@@ -60,7 +69,7 @@ public class QuizController implements Initializable {
         }
     }
 
-    private void setUpData() throws CouldNotFindQuestionEntityException, CouldNotUpdateQuestionEntityException {
+    private void setUpData() throws CouldNotFindQuestionEntityException {
         final Integer questionNumber = holder.getQuestionNumber() != null ? holder.getQuestionNumber() : 1;
         final List<RadioButton> radioButtonList = new ArrayList<>();
         final QuestionsEntity questionsEntity =
@@ -107,6 +116,7 @@ public class QuizController implements Initializable {
             }
             if (questionNumber + 1 <= questionsEntities.size()) {
                 holder.setQuestionNumber(questionNumber + 1);
+                saveTimer();
                 router.navigate(QuizController.class, event);
             } else {
                 router.navigate(AnswersController.class, event);
@@ -116,8 +126,47 @@ public class QuizController implements Initializable {
 
     private void setBackButtonAction(final Integer questionNumber) {
         backButton.setOnAction(event -> {
+            saveTimer();
             holder.setQuestionNumber(questionNumber - 1);
             router.navigate(QuizController.class, event);
         });
+    }
+
+    private void countdownTimer() {
+        final List<QuestionsEntity> questionsEntities = questionsService.getAllQuestions();
+        int startTime = 60 * questionsEntities.size();
+        AtomicInteger timerText = new AtomicInteger(setTimerText(startTime, true));
+        Timeline timeline = new Timeline();
+        timeline.setCycleCount(timerText.get());
+        timeline.getKeyFrames().add(
+                new KeyFrame(Duration.seconds(1), event -> {
+                    timerText.getAndDecrement();
+                    setTimerText(timerText.get(), false);
+                }));
+        timeline.setOnFinished(event -> router.navigate(AnswersController.class, anchorPane));
+        timeline.playFromStart();
+    }
+
+    private int setTimerText(final int startTime, final boolean fetchSavedTimer) {
+        int time = startTime;
+        if (fetchSavedTimer && holder.getTime() != null) {
+            time = holder.getTime();
+        }
+        int minutes = time / 60;
+        int seconds = time % 60;
+        final String timer = String.format("%02d:%02d", minutes, seconds);
+        timerLabel.setText(timer);
+        return time;
+    }
+
+    private void saveTimer() {
+        this.holder.setTime(getCurrentTime());
+    }
+
+    private int getCurrentTime() {
+        final String[] split = timerLabel.getText().split(":");
+        final int seconds = Integer.parseInt(split[1]);
+        final int minutes = Integer.parseInt(split[0]);
+        return (60 * minutes) + seconds;
     }
 }

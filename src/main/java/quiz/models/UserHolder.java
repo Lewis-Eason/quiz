@@ -8,6 +8,7 @@ import lombok.ToString;
 public class UserHolder {
 
     private Integer questionNumber;
+    private Integer time;
 
     private final static UserHolder INSTANCE = new UserHolder();
 
