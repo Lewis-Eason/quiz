@@ -13,7 +13,7 @@ javafx {
 
 group = 'quiz'
 version = '0.0.1-SNAPSHOT'
-sourceCompatibility = "14"
+sourceCompatibility = "11"
 
 repositories {
 	mavenCentral()
@@ -45,6 +45,6 @@ dependencies {
 test {
 	useJUnitPlatform()
 }
-targetCompatibility = JavaVersion.VERSION_14
+targetCompatibility = JavaVersion.VERSION_11
 
 mainClassName = "quiz.QuizDesktopApplication"

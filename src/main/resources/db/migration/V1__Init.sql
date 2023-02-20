@@ -1,3 +1,19 @@
+CREATE TABLE if not exists answers (
+    id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    answer VARCHAR(500) NOT NULL,
+    question_id INTEGER
+);
+
+CREATE TABLE if not exists questions (
+    question_id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    question_group VARCHAR(3),
+    question VARCHAR(500) UNIQUE,
+    correct_answer VARCHAR(100),
+    entered_answer VARCHAR(100)
+);
+
+ALTER TABLE if EXISTS answers ADD FOREIGN KEY (question_id) REFERENCES questions(question_id);
+
 insert into questions (correct_answer, question , question_group, entered_answer)
 values ('Montevideo', 'What is the capital of Uruguay?', '2', '');
 
